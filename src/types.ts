@@ -15,3 +15,13 @@ export interface WorkingDirectoryConfig {
   directory: string;
   setAt: Date;
 }
+
+export interface BotConfig {
+  name: string;
+  slackBotToken: string;
+  slackAppToken: string;
+  slackSigningSecret: string;
+  cwd?: string;
+  systemPrompt?: string;
+  agentFile?: string;
+}

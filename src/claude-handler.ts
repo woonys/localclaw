@@ -38,13 +38,18 @@ export class ClaudeHandler {
     session?: ConversationSession,
     abortController?: AbortController,
     workingDirectory?: string,
-    slackContext?: { channel: string; threadTs?: string; user: string }
+    slackContext?: { channel: string; threadTs?: string; user: string },
+    botSystemPrompt?: string
   ): AsyncGenerator<SDKMessage, void, unknown> {
     const options: any = {
       outputFormat: 'stream-json',
       permissionMode: slackContext ? 'default' : 'bypassPermissions',
       maxTurns: Number(process.env.CLAUDE_MAX_TURNS) || 10,
     };
+
+    if (botSystemPrompt) {
+      options.appendSystemPrompt = botSystemPrompt;
+    }
 
     if (workingDirectory) {
       options.cwd = workingDirectory;

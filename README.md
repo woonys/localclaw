@@ -47,6 +47,7 @@ You already use `claude` in your terminal. LocalClaw lets you use it from Slack 
 - **No terminal needed** — talk to Claude from Slack, get full responses back
 - **Thread = conversation** — same thread continues the same session via `--resume`
 - **CLAUDE.md aware** — your project context is automatically loaded
+- **Multi-bot** — run @CTO, @COO, @CMO as separate bots, each with its own persona and context
 - **All 89+ tools** — Bash, Read, Write, GitHub MCP, WebSearch, and more
 - **Auto-restart** — crashes recover in 5 seconds
 - **5-minute setup** — clone, configure, run
@@ -160,12 +161,58 @@ The `@anthropic-ai/claude-code` SDK bundles its own `cli.js` which may not match
 
 No manual steps needed — runs on `npm install`.
 
+## 🤖 Multi-Bot Mode
+
+Run multiple bots from a single LocalClaw instance — each with its own persona, system prompt, and working directory.
+
+```
+@CTO    → Tech architecture, code quality, infrastructure decisions
+@COO    → Operations, KPIs, resource allocation, execution
+@CMO    → Marketing strategy, content, channel performance
+@HQ     → Orchestrator, cross-project status, strategic decisions
+```
+
+### Setup
+
+1. Create a separate Slack App for each bot (each gets its own token)
+2. Create `bots.json`:
+
+```json
+{
+  "bots": [
+    {
+      "name": "HQ",
+      "slackBotToken": "$SLACK_BOT_TOKEN_HQ",
+      "slackAppToken": "$SLACK_APP_TOKEN_HQ",
+      "slackSigningSecret": "$SLACK_SIGNING_SECRET_HQ",
+      "cwd": "/path/to/project",
+      "systemPrompt": "You are the HQ orchestrator..."
+    },
+    {
+      "name": "CTO",
+      "slackBotToken": "$SLACK_BOT_TOKEN_CTO",
+      "slackAppToken": "$SLACK_APP_TOKEN_CTO",
+      "slackSigningSecret": "$SLACK_SIGNING_SECRET_CTO",
+      "cwd": "/path/to/project",
+      "agentFile": ".claude/agents/cto.md"
+    }
+  ]
+}
+```
+
+3. Add tokens to `.env` and run `npm start` — all bots start simultaneously.
+
+> **Backward compatible**: No `bots.json`? LocalClaw runs in single-bot mode using `.env` as before.
+
+See `bots.json.example` for a full configuration template.
+
 ## 🗺️ Roadmap
 
 - [x] Slack integration
 - [x] Thread-based session persistence
 - [x] System claude binary support
 - [x] Auto-restart on crash
+- [x] Multi-bot support (bots.json)
 - [ ] Telegram channel support
 - [ ] Discord channel support
 - [ ] Multi-project cwd switching via slash commands

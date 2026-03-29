@@ -39,14 +39,20 @@ export class SlackHandler {
   private originalMessages: Map<string, { channel: string; ts: string }> = new Map(); // sessionKey -> original message info
   private currentReactions: Map<string, string> = new Map(); // sessionKey -> current emoji
   private botUserId: string | null = null;
+  private botName: string;
+  private botSystemPrompt?: string;
+  private botCwd?: string;
 
-  constructor(app: App, claudeHandler: ClaudeHandler, mcpManager: McpManager) {
+  constructor(app: App, claudeHandler: ClaudeHandler, mcpManager: McpManager, botConfig?: { name: string; systemPrompt?: string; cwd?: string }) {
     this.app = app;
     this.claudeHandler = claudeHandler;
     this.mcpManager = mcpManager;
     this.workingDirManager = new WorkingDirectoryManager();
     this.fileHandler = new FileHandler();
     this.todoManager = new TodoManager();
+    this.botName = botConfig?.name || 'LocalClaw';
+    this.botSystemPrompt = botConfig?.systemPrompt;
+    this.botCwd = botConfig?.cwd;
   }
 
   async handleMessage(event: MessageEvent, say: any) {
@@ -244,7 +250,10 @@ export class SlackHandler {
         user
       };
       
-      for await (const message of this.claudeHandler.streamQuery(finalPrompt, session, abortController, workingDirectory, slackContext)) {
+      // Use bot-specific cwd if configured and no explicit working directory
+      const effectiveCwd = workingDirectory || this.botCwd;
+
+      for await (const message of this.claudeHandler.streamQuery(finalPrompt, session, abortController, effectiveCwd, slackContext, this.botSystemPrompt)) {
         if (abortController.signal.aborted) break;
 
         this.logger.debug('Received message from Claude SDK', {

@@ -1,0 +1,36 @@
+{
+  "bots": [
+    {
+      "name": "HQ",
+      "slackBotToken": "$SLACK_BOT_TOKEN_HQ",
+      "slackAppToken": "$SLACK_APP_TOKEN_HQ",
+      "slackSigningSecret": "$SLACK_SIGNING_SECRET_HQ",
+      "cwd": "/path/to/your/project",
+      "systemPrompt": "You are the HQ orchestrator. You manage all projects and provide strategic oversight."
+    },
+    {
+      "name": "CTO",
+      "slackBotToken": "$SLACK_BOT_TOKEN_CTO",
+      "slackAppToken": "$SLACK_APP_TOKEN_CTO",
+      "slackSigningSecret": "$SLACK_SIGNING_SECRET_CTO",
+      "cwd": "/path/to/your/project",
+      "agentFile": ".claude/agents/cto.md"
+    },
+    {
+      "name": "COO",
+      "slackBotToken": "$SLACK_BOT_TOKEN_COO",
+      "slackAppToken": "$SLACK_APP_TOKEN_COO",
+      "slackSigningSecret": "$SLACK_SIGNING_SECRET_COO",
+      "cwd": "/path/to/your/project",
+      "agentFile": ".claude/agents/coo.md"
+    },
+    {
+      "name": "CMO",
+      "slackBotToken": "$SLACK_BOT_TOKEN_CMO",
+      "slackAppToken": "$SLACK_APP_TOKEN_CMO",
+      "slackSigningSecret": "$SLACK_SIGNING_SECRET_CMO",
+      "cwd": "/path/to/your/project",
+      "agentFile": ".claude/agents/cmo.md"
+    }
+  ]
+}
