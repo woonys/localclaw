@@ -331,17 +331,17 @@ export class SlackHandler {
         }
       }
 
-      // Update status to completed
+      // Delete status message when done (clean up "Working..." indicator)
       if (statusMessageTs) {
-        await this.app.client.chat.update({
-          channel,
-          ts: statusMessageTs,
-          text: '✅ *Task completed*',
-        });
+        try {
+          await this.app.client.chat.delete({
+            channel,
+            ts: statusMessageTs,
+          });
+        } catch {
+          // Ignore delete failures (e.g. missing scope)
+        }
       }
-
-      // Update reaction to show completion
-      await this.updateMessageReaction(sessionKey, '✅');
 
       this.logger.info('Completed processing message', {
         sessionKey,
