@@ -174,6 +174,35 @@ Run multiple bots from a single LocalClaw instance — each with its own persona
 
 ### Setup
 
+#### Option A: Create apps via Slack Manifest API (recommended)
+
+Get a [Configuration Token](https://api.slack.com/apps) (bottom of the page → "Your App Configuration Tokens" → Generate Token), then create apps programmatically:
+
+```bash
+curl -s -X POST https://slack.com/api/apps.manifest.create \
+  -H "Authorization: Bearer $CONFIG_TOKEN" \
+  -H "Content-Type: application/json; charset=utf-8" \
+  -d '{
+    "manifest": {
+      "display_information": {"name": "CTO", "description": "Your CTO bot"},
+      "features": {
+        "bot_user": {"display_name": "CTO", "always_online": true},
+        "app_home": {"home_tab_enabled": true, "messages_tab_enabled": true, "messages_tab_read_only_enabled": false}
+      },
+      "oauth_config": {"scopes": {"bot": ["app_mentions:read","channels:history","channels:read","chat:write","files:read","groups:history","groups:read","im:history","im:read","im:write","mpim:history","mpim:read","users:read"]}},
+      "settings": {"event_subscriptions": {"bot_events": ["app_mention","message.im"]}, "socket_mode_enabled": true, "token_rotation_enabled": false}
+    }
+  }'
+```
+
+Then install each app manually at `https://api.slack.com/apps/{APP_ID}/install-on-team` and collect the Bot Token + App-Level Token.
+
+#### Option B: Create apps manually
+
+Go to [api.slack.com/apps](https://api.slack.com/apps) → Create New App → From scratch. Repeat for each bot.
+
+#### Configure bots.json
+
 1. Create a separate Slack App for each bot (each gets its own token)
 2. Create `bots.json`:
 
