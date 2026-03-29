@@ -222,7 +222,7 @@ See `bots.json.example` for a full configuration template.
 
 Based on [mpociot/claude-code-slack-bot](https://github.com/mpociot/claude-code-slack-bot). Enhanced with system binary support, auto-restart, and SDK compatibility patches.
 
-Built by [Jaewoon Kim](https://github.com/woonys) · [DevPill Newsletter](https://maily.so/devpill)
+Built by [woonys](https://github.com/woonys) · [DevPill Newsletter](https://maily.so/devpill)
 
 ## 📄 License
 

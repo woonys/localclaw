@@ -11,7 +11,7 @@
     "postinstall": "node scripts/patch-sdk.js"
   },
   "keywords": ["claude", "claude-code", "slack", "slack-bot", "ai", "anthropic", "mcp", "localclaw", "claw"],
-  "author": "Jaewoon Kim <woonys@gmail.com>",
+  "author": "woonys",
   "license": "MIT",
   "repository": {
     "type": "git",
