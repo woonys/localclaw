@@ -43,7 +43,7 @@ export class ClaudeHandler {
   ): AsyncGenerator<SDKMessage, void, unknown> {
     const options: any = {
       outputFormat: 'stream-json',
-      permissionMode: slackContext ? 'default' : 'bypassPermissions',
+      permissionMode: 'bypassPermissions',
       maxTurns: Number(process.env.CLAUDE_MAX_TURNS) || 10,
     };
 
@@ -57,39 +57,8 @@ export class ClaudeHandler {
 
     // Add MCP server configuration if available
     const mcpServers = this.mcpManager.getServerConfiguration();
-
-    // Add permission prompt server if we have Slack context
-    if (slackContext) {
-      options.permissionPromptToolName = 'mcp__permission-prompt__permission_prompt';
-
-      const permissionServer = {
-        'permission-prompt': {
-          command: 'npx',
-          args: ['tsx', path.resolve(__dirname, '..', 'src', 'permission-mcp-server.ts')],
-          env: {
-            SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN,
-            SLACK_CONTEXT: JSON.stringify(slackContext)
-          }
-        }
-      };
-
-      if (mcpServers) {
-        options.mcpServers = { ...mcpServers, ...permissionServer };
-      } else {
-        options.mcpServers = permissionServer;
-      }
-    } else if (mcpServers && Object.keys(mcpServers).length > 0) {
+    if (mcpServers && Object.keys(mcpServers).length > 0) {
       options.mcpServers = mcpServers;
-    }
-
-    if (options.mcpServers && Object.keys(options.mcpServers).length > 0) {
-      const defaultMcpTools = this.mcpManager.getDefaultAllowedTools();
-      if (slackContext) {
-        defaultMcpTools.push('mcp__permission-prompt');
-      }
-      if (defaultMcpTools.length > 0) {
-        options.allowedTools = defaultMcpTools;
-      }
     }
 
     if (session?.sessionId) {

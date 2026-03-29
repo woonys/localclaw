@@ -267,35 +267,30 @@ export class SlackHandler {
           const hasToolUse = message.message.content?.some((part: any) => part.type === 'tool_use');
           
           if (hasToolUse) {
-            // Update status to show working
+            // Just update status message — don't spam tool use details
             if (statusMessageTs) {
+              // Show brief tool info in status message only
+              const toolNames = message.message.content
+                ?.filter((p: any) => p.type === 'tool_use')
+                .map((p: any) => p.name)
+                .join(', ');
               await this.app.client.chat.update({
                 channel,
                 ts: statusMessageTs,
-                text: '⚙️ *Working...*',
+                text: `⚙️ *Working...* (${toolNames})`,
               });
             }
 
-            // Update reaction to show working
             await this.updateMessageReaction(sessionKey, '⚙️');
 
-            // Check for TodoWrite tool and handle it specially
-            const todoTool = message.message.content?.find((part: any) => 
+            // Handle TodoWrite specially
+            const todoTool = message.message.content?.find((part: any) =>
               part.type === 'tool_use' && part.name === 'TodoWrite'
             );
-
             if (todoTool) {
               await this.handleTodoUpdate(todoTool.input, sessionKey, session?.sessionId, channel, thread_ts || ts, say);
             }
-
-            // For other tool use messages, format them immediately as new messages
-            const toolContent = this.formatToolUse(message.message.content);
-            if (toolContent) { // Only send if there's content (TodoWrite returns empty string)
-              await say({
-                text: toolContent,
-                thread_ts: thread_ts || ts,
-              });
-            }
+            // Don't send individual tool use messages — only final result matters
           } else {
             // Handle regular text content
             const content = this.extractTextContent(message);
