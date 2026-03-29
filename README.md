@@ -8,8 +8,6 @@
 No API key. No infrastructure. No terminal. Just chat.
 
 <p>
-  <a href="https://github.com/woonys/localclaw/actions"><img src="https://img.shields.io/github/actions/workflow/status/woonys/localclaw/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI"></a>
-  <a href="https://github.com/woonys/localclaw/releases"><img src="https://img.shields.io/github/v/release/woonys/localclaw?include_prereleases&style=for-the-badge" alt="Release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
   <a href="https://github.com/woonys/localclaw/stargazers"><img src="https://img.shields.io/github/stars/woonys/localclaw?style=for-the-badge" alt="Stars"></a>
 </p>
