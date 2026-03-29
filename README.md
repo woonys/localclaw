@@ -1,112 +1,106 @@
-# Claude Code Slack Bot
+# LocalClaw
 
-Run **Claude Code** directly from Slack. Uses your existing `claude` CLI subscription — **no API key needed**.
+Run your local **Claude Code** from Slack. No terminal needed.
 
 ```
-You (Slack): @Claude 이 프로젝트 상태 알려줘
-Claude:      *reads your codebase, runs commands, responds*
+You (Slack):  @LocalClaw 프로젝트 상태 알려줘
+LocalClaw:    *reads your codebase, runs commands, responds in Slack*
 ```
 
-## Why?
+## What is this?
 
-- **No API key required** — uses your `claude` CLI login (Pro/Max subscription)
-- **Full Claude Code power** — file access, bash, MCP servers, all 89+ tools
-- **Thread = conversation** — replies in the same thread continue the session
-- **CLAUDE.md aware** — automatically loads your project context
+LocalClaw connects your Slack workspace to your local `claude` CLI. It's the simplest way to use Claude Code without staring at a terminal.
+
+- **No API key needed** — uses your existing Claude Code subscription (Pro/Max)
+- **No terminal needed** — talk to Claude from Slack, get full responses back
+- **Thread = conversation** — same thread continues the same session
+- **CLAUDE.md aware** — your project context is automatically loaded
 - **Auto-restart** — crashes recover in 5 seconds
+- **5-minute setup** — clone, configure, run
 
-## Quick Start (5 minutes)
+### Where it fits in the Claw ecosystem
 
-### 1. Create Slack App
+| Project | Stars | What it does |
+|---------|-------|-------------|
+| [OpenClaw](https://github.com/openclaw/openclaw) | 340K | Full-stack AI assistant. 30+ channels, apps, Gateway architecture |
+| [NanoClaw](https://github.com/qwibitai/nanoclaw) | 26K | Lightweight OpenClaw alternative with container isolation |
+| [PicoClaw](https://github.com/sipeed/picoclaw) | 27K | Ultra-lightweight. Runs on $10 devices with <10MB RAM |
+| **LocalClaw** | - | **Your local Claude Code, accessible from Slack. That's it.** |
 
-Go to [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**
+LocalClaw is not a general-purpose AI assistant. It's for people who already use `claude` in their terminal and want to use it from Slack too — without setting up infrastructure, containers, or API keys.
 
-Add these **Bot Token Scopes** (OAuth & Permissions):
-```
-app_mentions:read, channels:history, channels:read, chat:write,
-files:read, groups:history, groups:read, im:history, im:read,
-im:write, mpim:history, mpim:read, users:read
-```
+## Quick Start
 
-Enable **Socket Mode** (Settings → Socket Mode → Enable)
+### 1. Create a Slack App
 
-Create an **App-Level Token** with `connections:write` scope
-
-Subscribe to **bot events**: `app_mention`, `message.im`
-
-Install the app to your workspace.
+1. Go to [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**
+2. **OAuth & Permissions** → Add Bot Token Scopes:
+   ```
+   app_mentions:read, channels:history, channels:read, chat:write,
+   files:read, groups:history, groups:read, im:history, im:read,
+   im:write, mpim:history, mpim:read, users:read
+   ```
+3. **Socket Mode** → Enable
+4. **Basic Information** → App-Level Tokens → Generate with `connections:write` scope
+5. **Event Subscriptions** → Subscribe to: `app_mention`, `message.im`
+6. **Install to Workspace**
 
 ### 2. Configure
 
 ```bash
-git clone https://github.com/woonys/claude-code-slack.git
-cd claude-code-slack
+git clone https://github.com/woonys/localclaw.git
+cd localclaw
 cp .env.example .env
 ```
 
 Edit `.env`:
 ```bash
-SLACK_BOT_TOKEN=xoxb-...        # OAuth & Permissions → Bot Token
-SLACK_APP_TOKEN=xapp-...        # Basic Info → App-Level Token
-SLACK_SIGNING_SECRET=...        # Basic Info → Signing Secret
+SLACK_BOT_TOKEN=xoxb-...              # OAuth & Permissions → Bot Token
+SLACK_APP_TOKEN=xapp-...              # Basic Info → App-Level Token
+SLACK_SIGNING_SECRET=...              # Basic Info → Signing Secret
 CLAUDE_SYSTEM_BINARY=$(which claude)  # Your claude CLI path
-BASE_DIRECTORY=/path/to/projects      # Default working directory
+BASE_DIRECTORY=/path/to/your/project  # Default working directory
 ```
 
 ### 3. Run
 
 ```bash
-npm install    # Installs deps + auto-patches SDK
-npm start      # Start the bot
+npm install   # installs deps + auto-patches SDK
+npm start     # start the bot
 ```
 
 For background with auto-restart:
 ```bash
-# With tmux
-tmux new-session -d -s claude-slack "./start.sh"
+tmux new-session -d -s localclaw "./start.sh"
 
-# Check logs
-tmux attach -t claude-slack    # Ctrl+B then D to detach
-tail -f bot.log
+# View logs
+tmux attach -t localclaw    # Ctrl+B then D to detach
 ```
 
 ### 4. Use
 
-In Slack:
 ```
-@YourBot what files are in this project?
-@YourBot run the tests
-@YourBot explain the architecture of this codebase
-```
-
-Set working directory per channel:
-```
-@YourBot cwd /path/to/project
-@YourBot cwd my-project          # relative to BASE_DIRECTORY
+@LocalClaw what files are in this project?
+@LocalClaw run the tests and tell me what failed
+@LocalClaw explain this codebase architecture
+@LocalClaw cwd /path/to/another/project
 ```
 
 ## How It Works
 
 ```
-Slack message → Socket Mode → SlackHandler
-    → ClaudeHandler → spawn claude CLI (your system binary)
-    → claude reads CLAUDE.md, uses tools, generates response
-    → stream back to Slack
+Slack message
+  → Socket Mode (WebSocket)
+  → LocalClaw (Node.js)
+  → spawns: claude --print "your message" --cwd /your/project
+  → claude CLI reads CLAUDE.md, uses tools, generates response
+  → streams back to Slack
 ```
 
-- Each Slack **thread** = independent Claude session
-- Sessions persist via `--resume` (conversation continues in-thread)
-- Your `claude` CLI's auth, MCP servers, and settings are used as-is
+- Uses your **system `claude` binary** directly — same auth, same MCP servers, same everything
+- Each Slack **thread** is an independent session (`--resume` for continuity)
 - `CLAUDE.md` in your project directory is automatically loaded as context
-
-## SDK Patch
-
-The `@anthropic-ai/claude-code` SDK bundles its own `cli.js`, which may not match your installed `claude` CLI version. The `postinstall` script patches the SDK to:
-
-1. **Use your system `claude` binary** via `CLAUDE_SYSTEM_BINARY` env var
-2. **Handle exit codes gracefully** — ignore exit code 1 after receiving a successful result
-
-This runs automatically on `npm install`.
+- All 89+ Claude Code tools available (Bash, Read, Write, GitHub MCP, etc.)
 
 ## Configuration
 
@@ -115,11 +109,20 @@ This runs automatically on `npm install`.
 | `SLACK_BOT_TOKEN` | Yes | Slack bot OAuth token (`xoxb-...`) |
 | `SLACK_APP_TOKEN` | Yes | Slack app-level token (`xapp-...`) |
 | `SLACK_SIGNING_SECRET` | Yes | Slack signing secret |
-| `CLAUDE_SYSTEM_BINARY` | Recommended | Path to your `claude` CLI binary |
-| `BASE_DIRECTORY` | Recommended | Default working directory |
-| `ANTHROPIC_API_KEY` | No | Only needed if not using CLI auth |
+| `CLAUDE_SYSTEM_BINARY` | Recommended | Path to `claude` CLI (run `which claude`) |
+| `BASE_DIRECTORY` | Recommended | Default working directory for all channels |
+| `ANTHROPIC_API_KEY` | No | Only if not using CLI auth |
 | `CLAUDE_MAX_TURNS` | No | Max tool-use turns per query (default: 10) |
 | `DEBUG` | No | Enable debug logging |
+
+## SDK Patch
+
+The `@anthropic-ai/claude-code` SDK bundles its own `cli.js` which may not match your installed Claude Code version. The `postinstall` script automatically patches it to:
+
+1. Use your **system `claude` binary** via `CLAUDE_SYSTEM_BINARY`
+2. Handle **exit codes gracefully** after successful results
+
+No manual steps needed — runs on `npm install`.
 
 ## Credits
 
