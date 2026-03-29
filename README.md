@@ -1,24 +1,60 @@
-# LocalClaw
+<div align="center">
 
-Run your local **Claude Code** from Slack. No terminal needed.
+# 🦀 LocalClaw
+
+### Setup Local, Use Anywhere.
+
+**Your local Claude Code, accessible from Slack.**<br>
+No API key. No infrastructure. No terminal. Just chat.
+
+<p>
+  <a href="https://github.com/woonys/localclaw/actions"><img src="https://img.shields.io/github/actions/workflow/status/woonys/localclaw/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI"></a>
+  <a href="https://github.com/woonys/localclaw/releases"><img src="https://img.shields.io/github/v/release/woonys/localclaw?include_prereleases&style=for-the-badge" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="MIT License"></a>
+  <a href="https://github.com/woonys/localclaw/stargazers"><img src="https://img.shields.io/github/stars/woonys/localclaw?style=for-the-badge" alt="Stars"></a>
+</p>
+
+<p>
+  <a href="#-quick-start">Quick Start</a> ·
+  <a href="#-how-it-works">How It Works</a> ·
+  <a href="#-configuration">Configuration</a> ·
+  <a href="https://maily.so/devpill">Newsletter</a>
+</p>
+
+</div>
+
+---
+
+> **LocalClaw** uses your locally installed `claude` CLI directly — the same auth, same MCP servers, same CLAUDE.md context. It just makes it accessible from Slack instead of a terminal.
 
 ```
 You (Slack):  @LocalClaw 프로젝트 상태 알려줘
 LocalClaw:    *reads your codebase, runs commands, responds in Slack*
 ```
 
-## What is this?
+## Why LocalClaw?
 
-LocalClaw connects your Slack workspace to your local `claude` CLI. It's the simplest way to use Claude Code without staring at a terminal.
+You already use `claude` in your terminal. LocalClaw lets you use it from Slack too — without setting up infrastructure, containers, or API keys.
+
+| | OpenClaw / NanoClaw | **LocalClaw** |
+|---|---|---|
+| **Setup** | Complex (Gateway, containers, config) | **5 minutes** (clone → .env → run) |
+| **Auth** | API key required | **No API key** (uses your CLI login) |
+| **Runtime** | Self-contained AI platform | **Your local `claude` CLI** as-is |
+| **Scope** | Full-stack AI assistant | **Slack ↔ Claude Code bridge** |
+
+## Features
 
 - **No API key needed** — uses your existing Claude Code subscription (Pro/Max)
 - **No terminal needed** — talk to Claude from Slack, get full responses back
-- **Thread = conversation** — same thread continues the same session
+- **Thread = conversation** — same thread continues the same session via `--resume`
 - **CLAUDE.md aware** — your project context is automatically loaded
+- **All 89+ tools** — Bash, Read, Write, GitHub MCP, WebSearch, and more
 - **Auto-restart** — crashes recover in 5 seconds
 - **5-minute setup** — clone, configure, run
 
-### Where it fits in the Claw ecosystem
+<details>
+<summary><b>Where it fits in the Claw ecosystem</b></summary>
 
 | Project | Stars | What it does |
 |---------|-------|-------------|
@@ -29,9 +65,11 @@ LocalClaw connects your Slack workspace to your local `claude` CLI. It's the sim
 
 LocalClaw is not a general-purpose AI assistant. It's for people who already use `claude` in their terminal and want to use it from Slack too — without setting up infrastructure, containers, or API keys.
 
-## Quick Start
+</details>
 
-### 1. Create a Slack App
+## 🚀 Quick Start
+
+### Step 1. Create a Slack App
 
 1. Go to [api.slack.com/apps](https://api.slack.com/apps) → **Create New App** → **From scratch**
 2. **OAuth & Permissions** → Add Bot Token Scopes:
@@ -45,7 +83,7 @@ LocalClaw is not a general-purpose AI assistant. It's for people who already use
 5. **Event Subscriptions** → Subscribe to: `app_mention`, `message.im`
 6. **Install to Workspace**
 
-### 2. Configure
+### Step 2. Configure
 
 ```bash
 git clone https://github.com/woonys/localclaw.git
@@ -62,7 +100,7 @@ CLAUDE_SYSTEM_BINARY=$(which claude)  # Your claude CLI path
 BASE_DIRECTORY=/path/to/your/project  # Default working directory
 ```
 
-### 3. Run
+### Step 3. Run
 
 ```bash
 npm install   # installs deps + auto-patches SDK
@@ -77,7 +115,7 @@ tmux new-session -d -s localclaw "./start.sh"
 tmux attach -t localclaw    # Ctrl+B then D to detach
 ```
 
-### 4. Use
+### Step 4. Use
 
 ```
 @LocalClaw what files are in this project?
@@ -86,7 +124,7 @@ tmux attach -t localclaw    # Ctrl+B then D to detach
 @LocalClaw cwd /path/to/another/project
 ```
 
-## How It Works
+## 🔧 How It Works
 
 ```
 Slack message
@@ -102,7 +140,7 @@ Slack message
 - `CLAUDE.md` in your project directory is automatically loaded as context
 - All 89+ Claude Code tools available (Bash, Read, Write, GitHub MCP, etc.)
 
-## Configuration
+## ⚙️ Configuration
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -115,7 +153,7 @@ Slack message
 | `CLAUDE_MAX_TURNS` | No | Max tool-use turns per query (default: 10) |
 | `DEBUG` | No | Enable debug logging |
 
-## SDK Patch
+## 🩹 SDK Patch
 
 The `@anthropic-ai/claude-code` SDK bundles its own `cli.js` which may not match your installed Claude Code version. The `postinstall` script automatically patches it to:
 
@@ -124,10 +162,23 @@ The `@anthropic-ai/claude-code` SDK bundles its own `cli.js` which may not match
 
 No manual steps needed — runs on `npm install`.
 
-## Credits
+## 🗺️ Roadmap
+
+- [x] Slack integration
+- [x] Thread-based session persistence
+- [x] System claude binary support
+- [x] Auto-restart on crash
+- [ ] Telegram channel support
+- [ ] Discord channel support
+- [ ] Multi-project cwd switching via slash commands
+- [ ] Web UI dashboard
+
+## 🤝 Credits
 
 Based on [mpociot/claude-code-slack-bot](https://github.com/mpociot/claude-code-slack-bot). Enhanced with system binary support, auto-restart, and SDK compatibility patches.
 
-## License
+Built by [Jaewoon Kim](https://github.com/woonys) · [DevPill Newsletter](https://maily.so/devpill)
+
+## 📄 License
 
 MIT
